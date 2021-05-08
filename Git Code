@@ -1,0 +1,84 @@
+
+…or create a new repository on the command line
+https://medium.com/faun/beginners-guide-to-version-control-using-git-and-github-8bf44b421140
+echo "# Node-Mern" >> README.md
+git init
+git add README.md
+git status
+git commit -m "first commit"
+git remote add origin https://github.com/allwin-baby/Node-Mern.git
+git push -u origin master
+
+…or push an existing repository from the command line
+
+git remote add origin https://github.com/allwin-baby/Node-Mern.git
+git push -u origin master
+
+
+New
+
+sudo apt install git
+git config --global user.name "allwin-baby"
+git config --global user.email "allwin123321@gmail.com"
+INSIDE FOLDER
+git init
+git add . --> to add all folder
+git commit -m "messsage" ---> to confirm all changes
+git remote add <the nickname of repo url (github/bitbucket/azure) > <the actual ur of repo>
+
+push to main branch
+git push <nickname of url>  master    {master is the main file}
+or  push to sub branch
+git checkout -b <branch name>   to create a branch
+git push <nickname of url> <branch name (brach you want to commit)>
+
+After making changesgit clone https://github.com/allwin-baby/React-Learn.git
+Cloning into 'React-Learn'...
+
+
+git add . 
+git commit -m "message"
+git push <nickname> <brachname/master>
+
+
+to remove github
+rm -rf .git
+to get nicknames of urls
+git remote -v
+git status
+
+
+Create a tag
+
+git tag -a "tag name" -m "message"
+git branch --list
+
+switch to a branch
+git checkout '5#master'
+
+
+To Continue Working with a project
+
+git clone https://github.com/allwin-baby/React-Learn.git
+git fetch --all
+git pull --all
+git pull origin --all ???
+git branch
+git pull origin <last branch/the branch you want to work with>    : git pull origin "#5toogleVirgin"
+git checkout "#5toogleVirgin"  :switch to that branch
+git branch
+
+
+To merge a project to existing project cloned
+rsync -r . ../React-Learn
+git diff
+
+
+https://stackoverflow.com/questions/67699/how-to-clone-all-remote-branches-in-git
+
+
+NO SPACE IN BW brachname
+
+create new brach
+git branch
+git checkout -b "#6Add_Task"
