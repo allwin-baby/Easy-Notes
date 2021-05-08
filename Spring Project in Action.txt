@@ -1,0 +1,324 @@
+TELUSKO
+
+Create a web app
+in STS create spring starter project
+	add "web" dependancy
+	finish
+	expand src,main,java-->main class
+	src/main---> create a folder "webapp" -->inside web app create new home.jsp file
+	fill some in body
+	go to main class folder 
+	create a controller class called homeController
+
+Internally we use tomcat server .Doesnt come with jsp support 
+Go to mavn repo 
+search tomcatjasper (tomcat jsp parser) version should match with tomcat server in mavaen dependancy
+copy code and paste in pom.xml dependancy
+Now spring boot know how to convet jsp to serverlet!!!
+
+>HomeController.java
+
+package com.example.demo;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+@Controller  --->to connet to view(jsp/html) file saved in "src/main/webap"
+public class HomeController {
+	@RequestMapping("home") ---->url
+	#@ResponseBody	--->to return string ,to get jsp file you need to remove it after adding jasper dependancy
+	public String ShowhomePage() {
+		return "home.jsp";
+	}
+}
+		 
+!!!No need of server application beacuse tomcat server is added 
+to spring boot application as a mavan dependancy as default
+++++run program in main class-> right click ---> run as spring application
+
+----------------------------------------------------------------------
+src/main/resourss/      applciations.properties file
+To "configure" prefix and suffix
+--<default view path of spring boot is webapp folder
+so 
+ return "home.jsp";   search webapp/home.jsp
+ INSTEAD
+ we configure prefix ie folder name(webapp/) and suffix (.jsp)
+>applciations.properties
+
+spring.mvc.view.prefix=/pages/
+spring.mvc.view.suffix=.jsp
+
+move home.jsp to new folder named "src/main/webapp/
+pages" 	
+>HomeController.java
+   ......
+	public String ShowhomePage() {
+		return "home";
+	}		
+---------------------------------------
+Passing data (Study request dispatcher in serverlet)
+normal way of passing data   http://localhost:8080/home?name=allwin   
+name is passed to server
+In Serverlet technology we creaet object of "HttpServletRequest" to fetch request string
+We create Session to store request parameters
+>HomeController.java
+
+package com.example.demo;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+@Controller
+public class HomeController {
+	@RequestMapping("home") 
+	public String ShowhomePage(HttpServletRequest req,HttpServletResponse res) {  -->to get request parameters
+		
+		String name = req.getParameter("name");  -->get parameter
+		HttpSession session = req.getSession();  -->create session from req object
+		session.setAttribute("name", name);      --> embedding variable  home.jsp ${name}
+		return "home";
+	}
+}
+
+>home.jsp
+......
+Hello ${name}
+......
+
+Go to url http://localhost:8080/home?name=allwin
+-------------------------------------------------------
+Spring ModelAndView class
+Recap
+1.Controller.java
+2.applciations.properties
+3.pages/home.jsp
+4.add jasper in pom.xml
+
+>HomeController.java
+
+
+package com.example.demo;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+@Controller
+public class HomeController {
+	@RequestMapping("home") 
+	       importtant!!!  
+	public ModelAndView ShowhomePage(@RequestParam("urlname")  String servername) {  multiple req variables
+		ModelAndView mv = new ModelAndView();   
+		mv.addObject("jspname",servername);   ${jspname} in home.jsp
+		mv.setViewName("home");   the actual jsp page
+		return mv;
+	}
+}
+http://localhost:8080/home?urlname=allwin
+Instead of using  serverlet,session we can use ModelAndView
+--------------------------------------------------------
+Spring boot Model Object
+
+>RequestDataStringMagicObject.java
+package com.example.demo;
+public class RequestDataStringMagicObject {
+	private int urlvariable1;
+	private String name;
+	private String age;
+	public int getUrlvariable1() {
+		return urlvariable1;
+	}
+	public void setUrlvariable1(int urlvariable1) {
+		this.urlvariable1 = urlvariable1;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getAge() {
+		return age;
+	}
+	public void setAge(String age) {
+		this.age = age;
+	}
+} 
+>HomeController.java
+package com.example.demo;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+@Controller
+public class HomeController {
+	@RequestMapping("home") 
+	public ModelAndView ShowhomePage(RequestDataStringMagicObject obj) {
+		ModelAndView mv = new ModelAndView();
+		mv.addObject("Modeljspobj",obj);
+		mv.setViewName("home");
+		return mv;
+	}
+}
+>home.jsp
+hello ${Modeljspobj.urlvariable1},${Modeljspobj.name},${Modeljspobj.age}
+>url
+http://localhost:8080/home?urlvariable1=1&name=allwin&age=twenttwenty
+---------------------------------------------------------------
+JPA ,H2 Database in Spring
+h2 is inmemory database
+
+add dependancy 
+h2,jpa
+
+Recap
+1.HomeController
+2.pom.xml jasper dependancy
+3.home.jsp
+4.database class with fields with getters and setters and toString
+>database.java
+
+package com.example.demo;
+public class database {
+	private int id;
+	private String name;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	@Override
+	public String toString() {
+		return "database [id=" + id + ", name=" + name + "]";
+	}
+}
+
+
+>home.jsp
+
+<body>
+ <form action="addObject">
+ <input type="text" name = 'id'><br>
+ <input type="text" name = 'name'><br>
+ <input type="submit" >
+ </form>
+</body>
+
+How to connect to h2 database?
+>application.properties
+
+spring.h2.console.enabled=true
+spring.datasource.platform=h2
+spring.datasource.url=jdbc:h2:mem:database_name
+
+How to access h2 database?
+url http://localhost:8080/h2-console/
+Cannot autocreate Error
+
+USe
+https://stackoverflow.com/questions/55349373/database-not-found-and-ifexists-true-so-we-cant-auto-create-it
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!change h2 version !!!!!!!!!!!!!!!!!!!!!!!!!
+
+VSCODE
+0.add h2,jpa,web dependancy
+1.add jasper in pom
+2.change h2 version
+3.add controller
+4.add database object Person class
+5.create folder webapp and inside create home.jsp
+6.edit application.propreties file
+To enable JPA
+In database clas  Person
+add annotation
+@Entity
+@Id
+>Person.java
+package com.example.h2;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Person {
+	@Id
+    private int id;
+	private String name;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id; 
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	@Override
+	public String toString() {
+		return "Person [id=" + id + ", name=" + name + "]";
+	}
+}
+
+http://localhost:8080/h2-console/
+Dont worry if jdbc url is not showung same as in the applciations.propreties
+change the url same as in the application.properties
+connect 
+There is the Person table!!!
+!h2 is a in memory database each time you lauch data is lost
+so to insert some values into table Person each time server is loading.....
+
+In the resoures folder
+>data.sql
+insert into person values(101,'allwin baby');
+>In the console
+select * from Person
++++++To save data to Table
+1.Create an Interface (Which having Crud Operation)
+2.Create  a class  which impliments Interface(PersonRepo)
+>PersonRepo.java
+package com.example.h2;
+
+import org.springframework.data.repository.CrudRepository;
+        !important
+public interface PersonRepo extends CrudRepository<Person ,Integer>{  only mention  class name and type of primary key
+CrudRepository is an interface with crud operation 
+}
+
+>Controller.java
+package com.example.h2;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class controllerfile {
+    @Autowired
+    PersonRepo repo;  Acutually not creating a class which implimenting the inteface(personrepo)!! just @AutoWired
+	@RequestMapping("/")
+	public String home(){
+		System.out.println("allwin");
+		return "home.jsp";
+    }
+    @RequestMapping("/add")
+    public String add_person(Person person){
+        repo.save(person);
+        return "home.jsp";
+    }
+}
+>home.jsp
+ <form action="add">  edit the action same name as   @RequestMapping("/add")
+ <input type="text" name = 'id'><br>
+ <input type="text" name = 'name'><br>
+ <input type="submit" >
+ 
+
